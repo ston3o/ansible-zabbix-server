@@ -1,0 +1,80 @@
+---
+
+- name: "Repository | Install gpg key"
+  apt_key: id=79EA5ED4 url=http://repo.zabbix.com/zabbix-official-repo.key
+  when: zabbix_repo == "zabbix"
+
+- name: "Repository | Installing {{ ansible_distribution }}"
+  apt_repository:
+    repo: "{{ item }} http://repo.zabbix.com/zabbix/{{ zabbix_version }}/{{ ansible_distribution.lower() }}/ {{ ansible_distribution_release }} main"
+    state: present
+  with_items:
+    - deb-src
+    - deb
+
+- name: "Packages | Installing zabbix-server-mysql"
+  apt: pkg=zabbix-server-mysql state=present update_cache=yes
+
+- name: "Packages | Install zabbix-web"
+  apt: pkg=zabbix-frontend-php state=present
+
+- name: "Packages | Install Mysql Client package"
+  apt: name={{ item }} state=present
+  with_items:
+    - python-mysqldb
+    - mysql-client
+
+- name: "Packages | Install php packages"
+  apt: name={{ item }} state=present
+  with_items:
+    - libapache2-mod-php7.0
+    - php-bcmath
+    - php-mbstring
+    - php-ldap
+    - php-mysql
+    - php-xml
+
+- name: "Config | Configure zabbix-server"
+  template: src=zabbix_server.conf.j2 dest=/etc/zabbix/zabbix_server.conf owner=zabbix group=zabbix mode=0644 backup=true
+  notify: zabbix-server restarted
+
+- name: "Config | Create include dir zabbix-server"
+  file: path={{ server_include }} owner=zabbix group=zabbix state=directory mode=0644
+
+- name: "Config | Create zabbix-web directory"
+  file: path=/etc/zabbix/web owner={{ apache_user }} group={{ apache_group }} state=directory mode=0755
+
+- name: "Config | Configure zabbix-web"
+  template: src=zabbix.conf.php.j2 dest=/etc/zabbix/web/zabbix.conf.php owner={{ apache_user }} group={{ apache_group }} mode=0644
+
+- name: "MySQL | Create database"
+  mysql_db: name={{ server_dbname }} state=present encoding={{ server_dbencoding }} collation={{ server_dbcollation }}
+
+- name: "MySQL | Create database user"
+  mysql_user: name={{ server_dbuser }} password={{ server_dbpassword }} priv={{ server_dbname }}.*:ALL state=present
+
+- name: "MySQL | Importing schema file"
+  shell: "cd /usr/share/doc/zabbix-server-mysql && if [ -f create.sql.gz ]; then gunzip create.sql.gz ; fi && mysql -h '{{ server_dbhost }}' -u '{{ server_dbuser }}' -p'{{ server_dbpassword }}' -D '{{ server_dbname }}' < create.sql && touch /etc/zabbix/schema.done"
+  args:
+    creates: /etc/zabbix/schema.done
+
+- name: "Apache | Get Apache version"
+  action: shell apachectl -v | grep 'version' | awk -F '/' '{ print $2 }'| awk '{ print $1 }' | cut -c 1-3
+  changed_when: False
+  register: apachectl_version
+
+- name: "Apache | Set correct apache_version"
+  set_fact:
+    apache_version: "{{ apachectl_version.stdout }}"
+
+- name: "Apache | install apache vhost"
+  template: src=apache_vhost.conf.j2 dest=/etc/apache2/sites-available/zabbix.conf owner=root group=root mode=0644
+
+- name: "Apache | enable apache vhost"
+  file: src=/etc/apache2/sites-available/zabbix.conf dest=/etc/apache2/sites-enabled/zabbix.conf owner=root group=root state=link
+
+- name: zabbix-server restarted
+  service: name=zabbix-server state=restarted enabled=yes
+
+- name: apache2 reloaded
+  service: name=apache2 state=reloaded

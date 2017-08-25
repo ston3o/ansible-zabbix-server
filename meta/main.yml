@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: ston3o
+  description: "Install zabbix-server on debian servers."
+  license: MIT
+  min_ansible_version: 2.2.1
+  platforms:
+    - name: Debian
+      versions:
+        - stretch
+  categories:
+    - monitoring
+    - zabbix
+dependencies: []
