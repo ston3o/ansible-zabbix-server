@@ -14,6 +14,7 @@ Example Playbook
 ```
 - hosts: localhost
   vars:
+    - zabbix_version: 3.4
     - zabbix_url: zabbix.example.com
     - server_dbpassword: zabbix-server
 
