@@ -3,6 +3,9 @@
 - hosts: all
   vars:
     - zabbix_url: zabbix.example.com
+    - server_dbname: zabbix
+    - server_dbuser: zabbix
+    - server_dbpassword: zabbix
 
   roles:
     - role: ansible-zabbix-server

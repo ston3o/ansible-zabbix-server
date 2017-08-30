@@ -16,7 +16,9 @@ Example Playbook
   vars:
     - zabbix_version: 3.4
     - zabbix_url: zabbix.example.com
-    - server_dbpassword: zabbix-server
+    - server_dbname: zabbix
+    - server_dbuser: zabbix
+    - server_dbpassword: zabbix
 
   roles:
     - role: zabbix-server
