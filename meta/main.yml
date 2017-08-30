@@ -8,7 +8,7 @@ galaxy_info:
     - name: Debian
       versions:
         - stretch
-  categories:
+  galaxy_tags:
     - monitoring
     - zabbix
 dependencies: []
