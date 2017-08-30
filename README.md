@@ -29,4 +29,4 @@ GNU GPL v3.0
 
 **Free Software, Hell Yeah!**
 
-[1]: https://www.zabbix.com/
+[1]: https://galaxy.ansible.com/ston3o/zabbix-server/
