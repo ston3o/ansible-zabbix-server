@@ -2,7 +2,6 @@
 
 - name: "Repository | Install gpg key"
   apt_key: id=79EA5ED4 url=http://repo.zabbix.com/zabbix-official-repo.key
-  when: zabbix_repo == "zabbix"
 
 - name: "Repository | Installing {{ ansible_distribution }}"
   apt_repository:
@@ -36,16 +35,15 @@
 
 - name: "Config | Configure zabbix-server"
   template: src=zabbix_server.conf.j2 dest=/etc/zabbix/zabbix_server.conf owner=zabbix group=zabbix mode=0644 backup=true
-  notify: zabbix-server restarted
 
 - name: "Config | Create include dir zabbix-server"
-  file: path={{ server_include }} owner=zabbix group=zabbix state=directory mode=0644
+  file: path=/etc/zabbix/zabbix_server.conf.d owner=zabbix group=zabbix state=directory mode=0644
 
 - name: "Config | Create zabbix-web directory"
-  file: path=/etc/zabbix/web owner={{ apache_user }} group={{ apache_group }} state=directory mode=0755
+  file: path=/etc/zabbix/web owner=www-data group=www-data state=directory mode=0755
 
 - name: "Config | Configure zabbix-web"
-  template: src=zabbix.conf.php.j2 dest=/etc/zabbix/web/zabbix.conf.php owner={{ apache_user }} group={{ apache_group }} mode=0644
+  template: src=zabbix.conf.php.j2 dest=/etc/zabbix/web/zabbix.conf.php owner=www-data group=www-data mode=0644
 
 - name: "MySQL | Create database"
   mysql_db: name={{ server_dbname }} state=present encoding={{ server_dbencoding }} collation={{ server_dbcollation }}
