@@ -2,7 +2,7 @@
 galaxy_info:
   author: ston3o
   description: "Install zabbix-server on debian servers."
-  license: MIT
+  license: GPLv3
   min_ansible_version: 2.2.1
   platforms:
     - name: Debian
