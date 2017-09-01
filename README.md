@@ -1,5 +1,7 @@
-Ansible-zabbix-server [![Ansible Galaxy](https://img.shields.io/badge/galaxy-zabbix-660198.svg)][1]
+Ansible-zabbix-server [![Ansible Galaxy](https://img.shields.io/badge/galaxy-zabbix--server-660198.svg)][1]
 ===
+
+[![Debian](https://img.shields.io/badge/platform-debian-red.svg)]()
 
 > Install zabbix-server on debian stretch.
 
